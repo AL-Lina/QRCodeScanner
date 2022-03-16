@@ -8,7 +8,6 @@
 import UIKit
 import AVFoundation
 
-
 extension ViewController: AVCaptureMetadataOutputObjectsDelegate {
     
 }
@@ -52,6 +51,9 @@ class ViewController: UIViewController {
                                       preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Перейти",
                                       style: .default, handler: { (action) in
+            if let url = URL(string: self.messageLabel.text!) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
         }))
         alert.addAction(UIAlertAction(title: "Копировать", style: .default, handler: { (action) in
             UIPasteboard.general.string = self.messageLabel.text
