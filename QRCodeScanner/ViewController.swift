@@ -8,6 +8,7 @@
 import UIKit
 import AVFoundation
 
+
 extension ViewController: AVCaptureMetadataOutputObjectsDelegate {
     
 }
@@ -35,9 +36,30 @@ class ViewController: UIViewController {
             
             if metadataObj.stringValue != nil {
                 messageLabel.text = metadataObj.stringValue
+                messageLabel.isUserInteractionEnabled = true
+                let tapgetures = UITapGestureRecognizer(target: self, action: #selector(clickLabel))
+                tapgetures.numberOfTapsRequired = 1
+                messageLabel.addGestureRecognizer(tapgetures)
+                
             }
+            
         }
+
     }
+    @objc func clickLabel() {
+        let alert = UIAlertController(title: "QR Code",
+                                      message: messageLabel.text,
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Перейти",
+                                      style: .default, handler: { (action) in
+        }))
+        alert.addAction(UIAlertAction(title: "Копировать", style: .default, handler: { (action) in
+            UIPasteboard.general.string = self.messageLabel.text
+        }))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    
     
     
     override func viewDidLoad() {
@@ -80,14 +102,12 @@ class ViewController: UIViewController {
                 view.bringSubviewToFront(qrCodeFrameView)
             }
             
+           
         } catch {
             // если появляется ошибка, проще распечатать и не продолжать больше
             print(error)
             return
         }
-        
     }
-
-
 }
 
