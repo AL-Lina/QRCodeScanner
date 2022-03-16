@@ -6,12 +6,86 @@
 //
 
 import UIKit
+import AVFoundation
+
+extension ViewController: AVCaptureMetadataOutputObjectsDelegate {
+    
+}
 
 class ViewController: UIViewController {
+    
+    var captureSession = AVCaptureSession()
+    var videoPreviewLayer: AVCaptureVideoPreviewLayer?
+    var qrCodeFrameView: UIView?
 
+    @IBOutlet weak var topBar: UIView!
+    @IBOutlet weak var messageLabel: UILabel!
+    
+    func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
+        if metadataObjects.count == 0 {
+            qrCodeFrameView?.frame = CGRect.zero
+            messageLabel.text = "No QR-code is detected"
+            return
+        }
+        
+        let metadataObj = metadataObjects[0] as! AVMetadataMachineReadableCodeObject
+        if metadataObj.type == AVMetadataObject.ObjectType.qr {
+            let barCodeObj = videoPreviewLayer?.transformedMetadataObject(for: metadataObj)
+            qrCodeFrameView?.frame = barCodeObj!.bounds
+            
+            if metadataObj.stringValue != nil {
+                messageLabel.text = metadataObj.stringValue
+            }
+        }
+    }
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        // получить заднюю камеру для захвата видео
+        guard let captureDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
+            print("Failed to get the camera device")
+            return
+            
+        }
+        
+        do {
+            let input = try AVCaptureDeviceInput(device: captureDevice)
+            //установить устройство ввода в сеансе камеры
+            captureSession.addInput(input)
+            // Инициализируй AVCaptureMetadataOutput объект и установи его в качестве устройства вывода для сеанса захвата
+            let captureMetadataOutput = AVCaptureMetadataOutput()
+            captureSession.addOutput(captureMetadataOutput)
+            // установи делегат и использeq очередь отправки по умолчанию для выполнения обратного вызова
+            captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+            captureMetadataOutput.metadataObjectTypes = [AVMetadataObject.ObjectType.qr]
+            // Инициализируй слой предварительного просмотра видео и добавь его в качестве подслоя к слою представления viewPreview
+            videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+            videoPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
+            videoPreviewLayer?.frame = view.layer.bounds
+            view.layer.addSublayer(videoPreviewLayer!)
+            
+            // Начать захват видео
+            captureSession.startRunning()
+            // переместить метку сообщения и верхнюю панель на передний план
+            view.bringSubviewToFront(messageLabel)
+            view.bringSubviewToFront(topBar)
+            
+            qrCodeFrameView = UIView()
+            
+            if let qrCodeFrameView = qrCodeFrameView {
+                qrCodeFrameView.layer.borderColor = UIColor.orange.cgColor
+                qrCodeFrameView.layer.borderWidth = 2
+                view.addSubview(qrCodeFrameView)
+                view.bringSubviewToFront(qrCodeFrameView)
+            }
+            
+        } catch {
+            // если появляется ошибка, проще распечатать и не продолжать больше
+            print(error)
+            return
+        }
+        
     }
 
 
