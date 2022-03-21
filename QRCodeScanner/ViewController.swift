@@ -17,14 +17,22 @@ class ViewController: UIViewController {
     var captureSession = AVCaptureSession()
     var videoPreviewLayer: AVCaptureVideoPreviewLayer?
     var qrCodeFrameView: UIView?
+    
 
     @IBOutlet weak var topBar: UIView!
     @IBOutlet weak var messageLabel: UILabel!
+   
+    
+    
     
     func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         if metadataObjects.count == 0 {
             qrCodeFrameView?.frame = CGRect.zero
             messageLabel.text = "No QR-code is detected"
+            messageLabel.isUserInteractionEnabled = true
+            let tapgestures = UITapGestureRecognizer(target: self, action: #selector(cliclLabelWnenNoQR))
+            tapgestures.numberOfTapsRequired = 1
+            messageLabel.addGestureRecognizer(tapgestures)
             return
         }
         
@@ -45,8 +53,16 @@ class ViewController: UIViewController {
         }
 
     }
+    
+    @objc func cliclLabelWnenNoQR() {
+        let alert = UIAlertController(title: "QR-код не найден", message: "Пожалуйста, наведите камеру на QR-код", preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alert.addAction(action)
+        self.present(alert, animated: true, completion: nil)
+    }
+    
     @objc func clickLabel() {
-        let alert = UIAlertController(title: "QR Code",
+        let alert = UIAlertController(title: "QR-код",
                                       message: messageLabel.text,
                                       preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Перейти",
@@ -66,6 +82,10 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+//       image = UIImage(named: "safari")!
+//        imageSafari.image = image
+//        view.addSubview(imageSafari)
+        
         // получить заднюю камеру для захвата видео
         guard let captureDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
             print("Failed to get the camera device")
@@ -98,8 +118,9 @@ class ViewController: UIViewController {
             qrCodeFrameView = UIView()
             
             if let qrCodeFrameView = qrCodeFrameView {
-                qrCodeFrameView.layer.borderColor = UIColor.orange.cgColor
-                qrCodeFrameView.layer.borderWidth = 2
+                qrCodeFrameView.layer.borderColor = UIColor.red.cgColor
+
+                qrCodeFrameView.layer.borderWidth = 3
                 view.addSubview(qrCodeFrameView)
                 view.bringSubviewToFront(qrCodeFrameView)
             }
