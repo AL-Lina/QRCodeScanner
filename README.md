@@ -1,4 +1,4 @@
-QRCodeScanner 
+## QRCodeScanner 
 __________________________________
 When the camera spots the qrcode, a link will appear at the bottom of the screen. By clicking on the link, an alert will appear where the user can copy the link address or follow this link.
 
