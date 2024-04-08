@@ -18,12 +18,9 @@ class ViewController: UIViewController {
     var videoPreviewLayer: AVCaptureVideoPreviewLayer?
     var qrCodeFrameView: UIView?
     
-
+    
     @IBOutlet weak var topBar: UIView!
     @IBOutlet weak var messageLabel: UILabel!
-   
-    
-    
     
     func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         if metadataObjects.count == 0 {
@@ -51,7 +48,7 @@ class ViewController: UIViewController {
             }
             
         }
-
+        
     }
     
     @objc func cliclLabelWnenNoQR() {
@@ -82,10 +79,6 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//       image = UIImage(named: "safari")!
-//        imageSafari.image = image
-//        view.addSubview(imageSafari)
-        
         // получить заднюю камеру для захвата видео
         guard let captureDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
             print("Failed to get the camera device")
@@ -119,15 +112,13 @@ class ViewController: UIViewController {
             
             if let qrCodeFrameView = qrCodeFrameView {
                 qrCodeFrameView.layer.borderColor = UIColor.red.cgColor
-
+                
                 qrCodeFrameView.layer.borderWidth = 3
                 view.addSubview(qrCodeFrameView)
                 view.bringSubviewToFront(qrCodeFrameView)
             }
             
-           
         } catch {
-            // если появляется ошибка, проще распечатать и не продолжать больше
             print(error)
             return
         }
